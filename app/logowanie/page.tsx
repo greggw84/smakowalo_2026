@@ -6,6 +6,9 @@ import { useSearchParams } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 import Logo from '@/components/Logo';
 
+// Force dynamic rendering so Supabase env vars are not required at build time
+export const dynamic = 'force-dynamic';
+
 export default function Logowanie() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
