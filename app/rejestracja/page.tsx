@@ -7,6 +7,9 @@ import { createClient } from '@/lib/supabase/client';
 import { saveUserSelection } from '@/app/actions/save-selection';
 import Logo from '@/components/Logo';
 
+// Force dynamic rendering so Supabase env vars are not required at build time
+export const dynamic = 'force-dynamic';
+
 export default function Rejestracja() {
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
