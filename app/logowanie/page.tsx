@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import Logo from '@/components/Logo';
-import { loginWithPassword, sendMagicLink } from '@/app/actions/auth';
 
 export default function Logowanie() {
   const [email, setEmail] = useState('');
@@ -16,7 +15,19 @@ export default function Logowanie() {
     setLoading(true);
     setMessage('');
 
-    const result = await loginWithPassword(email, password);
+    let result: { error?: string; success?: boolean }
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password }),
+      })
+      result = await res.json()
+    } catch {
+      setMessage('Nie udało się połączyć z kontem. Sprawdź internet i spróbuj jeszcze raz.')
+      setLoading(false)
+      return
+    }
 
     if (result.error) {
       setMessage(result.error);
@@ -60,12 +71,20 @@ export default function Logowanie() {
       return;
     }
     setLoading(true);
-    const result = await sendMagicLink(email, window.location.origin);
-
-    if (result.error) {
-      setMessage(result.error);
-    } else {
-      setMessage('Jeśli konto istnieje, magic link jest w drodze. Sprawdź skrzynkę i folder spam.');
+    try {
+      const res = await fetch('/api/auth/magic-link', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      })
+      const result = await res.json()
+      if (result.error) {
+        setMessage(result.error)
+      } else {
+        setMessage('Jeśli konto istnieje, magic link jest w drodze. Sprawdź skrzynkę i folder spam.')
+      }
+    } catch {
+      setMessage('Nie udało się wysłać linku. Sprawdź internet i spróbuj jeszcze raz.')
     }
     setLoading(false);
   };

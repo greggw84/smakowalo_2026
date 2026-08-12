@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { useState } from 'react';
 import { saveUserSelection } from '@/app/actions/save-selection';
-import { signUpWithPassword } from '@/app/actions/auth';
 import Logo from '@/components/Logo';
 
 export default function Rejestracja() {
@@ -18,7 +17,19 @@ export default function Rejestracja() {
     setLoading(true);
     setMessage('');
 
-    const result = await signUpWithPassword(email, password, name, window.location.origin);
+    let result: { error?: string; success?: boolean }
+    try {
+      const res = await fetch('/api/auth/signup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, password, name }),
+      })
+      result = await res.json()
+    } catch {
+      setMessage('Nie udało się połączyć z serwerem kont. Spróbuj ponownie.')
+      setLoading(false)
+      return
+    }
 
     if (result.error) {
       setMessage(result.error);
