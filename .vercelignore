@@ -1,0 +1,7 @@
+.env*
+!.env.example
+.DS_Store
+*.pem
+db_cluster-*.backup.gz
+node_modules
+.next

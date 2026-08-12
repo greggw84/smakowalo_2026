@@ -32,9 +32,15 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+vercel.env
 
 # vercel
 .vercel
+
+# database dumps / local supabase
+*.backup.gz
+db_cluster-*
+supabase/.temp/
 
 # typescript
 *.tsbuildinfo
