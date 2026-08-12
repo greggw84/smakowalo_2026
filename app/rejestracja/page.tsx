@@ -28,6 +28,7 @@ export default function Rejestracja() {
       email,
       password,
       options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=/panel`,
         data: {
           full_name: name,
         },

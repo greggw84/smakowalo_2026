@@ -28,7 +28,14 @@ export default function Logowanie() {
     });
 
     if (error) {
-      setMessage(error.message);
+      const raw = error.message.toLowerCase();
+      if (raw.includes('email not confirmed')) {
+        setMessage('Najpierw potwierdź email — sprawdź skrzynkę (i spam). Mail wysyła Supabase, nie Resend.');
+      } else if (raw.includes('invalid login credentials')) {
+        setMessage('Nieprawidłowy email lub hasło. Jeśli konto jest nowe — najpierw potwierdź maila.');
+      } else {
+        setMessage(error.message);
+      }
       setLoading(false);
       return;
     }
@@ -69,12 +76,17 @@ export default function Logowanie() {
       return;
     }
     setLoading(true);
-    const { error } = await supabase.auth.signInWithOtp({ email });
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: {
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=/panel`,
+      },
+    });
 
     if (error) {
       setMessage(error.message);
     } else {
-      setMessage('Sprawdź swoją skrzynkę — wysłaliśmy magic link.');
+      setMessage('Jeśli konto istnieje, magic link jest w drodze. Sprawdź skrzynkę i folder spam.');
     }
     setLoading(false);
   };
