@@ -215,6 +215,7 @@ export default function Kreator() {
                           src={recipe.imageUrl} 
                           alt={recipe.title}
                           className="w-full h-full object-cover"
+                          onError={(e) => { e.currentTarget.src = '/images/hero-kitchen.jpg'; }}
                         />
                         <div className="absolute top-3 right-3 bg-white/95 backdrop-blur px-2.5 py-0.5 rounded-full text-xs font-medium flex items-center gap-1">
                           {recipe.nutrition.kcal} kcal

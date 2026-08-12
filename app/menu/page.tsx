@@ -157,6 +157,7 @@ export default function MenuTygodnia() {
                     src={recipe.imageUrl} 
                     alt={recipe.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    onError={(e) => { e.currentTarget.src = '/images/hero-kitchen.jpg'; }}
                   />
                   <div className="absolute top-4 right-4 bg-white/95 backdrop-blur px-3 py-1 rounded-full text-xs font-medium flex items-center gap-1">
                     <Clock className="w-3.5 h-3.5" />
@@ -203,7 +204,7 @@ export default function MenuTygodnia() {
               </div>
 
               <div className="p-6">
-                <img src={selectedRecipe.imageUrl} alt={selectedRecipe.title} className="w-full h-64 object-cover rounded-2xl mb-6" />
+                <img src={selectedRecipe.imageUrl} alt={selectedRecipe.title} className="w-full h-64 object-cover rounded-2xl mb-6" onError={(e) => { e.currentTarget.src = '/images/hero-kitchen.jpg'; }} />
 
                 <div className="flex flex-wrap gap-4 mb-6 text-sm">
                   <div className="bg-[#f8f5f0] px-4 py-2 rounded-2xl flex items-center gap-2"><Clock className="w-4 h-4" /> {selectedRecipe.prepTime + selectedRecipe.cookTime} min</div>
