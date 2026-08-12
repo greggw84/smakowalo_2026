@@ -2,13 +2,9 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
 import { saveUserSelection } from '@/app/actions/save-selection';
+import { signUpWithPassword } from '@/app/actions/auth';
 import Logo from '@/components/Logo';
-
-// Force dynamic rendering so Supabase env vars are not required at build time
-export const dynamic = 'force-dynamic';
 
 export default function Rejestracja() {
   const [email, setEmail] = useState('');
@@ -17,26 +13,15 @@ export default function Rejestracja() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
 
-  const supabase = createClient();
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setMessage('');
 
-    const { error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback?next=/panel`,
-        data: {
-          full_name: name,
-        },
-      },
-    });
+    const result = await signUpWithPassword(email, password, name, window.location.origin);
 
-    if (error) {
-      setMessage(error.message);
+    if (result.error) {
+      setMessage(result.error);
       setLoading(false);
       return;
     }

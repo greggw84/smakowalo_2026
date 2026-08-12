@@ -2,12 +2,8 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { useSearchParams } from 'next/navigation';
-import { createClient } from '@/lib/supabase/client';
 import Logo from '@/components/Logo';
-
-// Force dynamic rendering so Supabase env vars are not required at build time
-export const dynamic = 'force-dynamic';
+import { loginWithPassword, sendMagicLink } from '@/app/actions/auth';
 
 export default function Logowanie() {
   const [email, setEmail] = useState('');
@@ -15,27 +11,15 @@ export default function Logowanie() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState('');
 
-  const supabase = createClient();
-
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setMessage('');
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    const result = await loginWithPassword(email, password);
 
-    if (error) {
-      const raw = error.message.toLowerCase();
-      if (raw.includes('email not confirmed')) {
-        setMessage('Najpierw potwierdź email — sprawdź skrzynkę (i spam). Mail wysyła Supabase, nie Resend.');
-      } else if (raw.includes('invalid login credentials')) {
-        setMessage('Nieprawidłowy email lub hasło. Jeśli konto jest nowe — najpierw potwierdź maila.');
-      } else {
-        setMessage(error.message);
-      }
+    if (result.error) {
+      setMessage(result.error);
       setLoading(false);
       return;
     }
@@ -76,15 +60,10 @@ export default function Logowanie() {
       return;
     }
     setLoading(true);
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: `${window.location.origin}/auth/callback?next=/panel`,
-      },
-    });
+    const result = await sendMagicLink(email, window.location.origin);
 
-    if (error) {
-      setMessage(error.message);
+    if (result.error) {
+      setMessage(result.error);
     } else {
       setMessage('Jeśli konto istnieje, magic link jest w drodze. Sprawdź skrzynkę i folder spam.');
     }
