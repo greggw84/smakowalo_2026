@@ -48,10 +48,10 @@ export default function MenuTygodnia() {
       <nav className="border-b bg-white/95 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
-            <Logo width={105} height={26} />
+            <Logo width={156} height={40} />
           </Link>
           <div className="flex items-center gap-4">
-            <Link href="/start">
+            <Link href="/wybierz-menu">
               <button className="bg-[#15803d] hover:bg-[#166534] text-white px-6 py-2 rounded-2xl text-sm font-medium">
                 Zacznij swój box
               </button>
@@ -259,7 +259,7 @@ export default function MenuTygodnia() {
                 </div>
 
                 <div className="mt-6 flex gap-3">
-                  <Link href="/start" className="flex-1 text-center bg-[#15803d] text-white py-3 rounded-2xl font-medium">Dodaj to danie do boxa</Link>
+                  <Link href="/wybierz-menu" className="flex-1 text-center bg-[#15803d] text-white py-3 rounded-2xl font-medium">Dodaj to danie do boxa</Link>
                   <button onClick={() => setSelectedRecipe(null)} className="flex-1 border border-[#e8dcc8] py-3 rounded-2xl">Zamknij</button>
                 </div>
               </div>
@@ -268,14 +268,17 @@ export default function MenuTygodnia() {
         )}
 
         <div className="mt-12 text-center">
-          <Link href="/start" className="inline-block bg-[#15803d] hover:bg-[#166534] text-white px-10 py-3.5 rounded-2xl font-medium text-lg">Zacznij wybierać i zamawiać</Link>
+          <Link href="/wybierz-menu" className="inline-block bg-[#15803d] hover:bg-[#166534] text-white px-10 py-3.5 rounded-2xl font-medium text-lg">Zacznij wybierać i zamawiać</Link>
           <p className="text-xs text-[#6b7280] mt-3">Wszystkie informacje w jednym miejscu • Pełna kontrola nad alergenami i preferencjami</p>
         </div>
 
-        <footer className="mt-12 pt-6 border-t text-xs text-[#6b7280] flex flex-wrap gap-4 justify-center">
-          <Link href="/regulamin" className="hover:text-[#15803d]">Regulamin</Link>
-          <Link href="/polityka-prywatnosci" className="hover:text-[#15803d]">Polityka prywatności</Link>
-          <span>© Smakowało – SMAKOWAŁO sp. z o.o., Poznań. Low-key, real food for real people.</span>
+        <footer className="mt-12 pt-6 border-t text-xs text-[#6b7280] flex flex-col items-center gap-4">
+          <Logo width={140} height={36} />
+          <div className="flex flex-wrap gap-4 justify-center">
+            <Link href="/regulamin" className="hover:text-[#15803d]">Regulamin</Link>
+            <Link href="/polityka-prywatnosci" className="hover:text-[#15803d]">Polityka prywatności</Link>
+            <span>© Smakowało – SMAKOWAŁO sp. z o.o., Poznań</span>
+          </div>
         </footer>
       </div>
     </div>

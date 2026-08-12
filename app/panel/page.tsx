@@ -275,7 +275,7 @@ export default function PanelKlienta() {
     <div className="min-h-screen bg-[#f8f5f0]">
       <nav className="bg-white border-b">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/"><Logo width={100} height={26} /></Link>
+          <Link href="/"><Logo width={156} height={40} /></Link>
           <div className="flex items-center gap-4 text-sm">
             <span className="text-[#6b7280]">{user.email}</span>
             <button onClick={handleLogout} className="px-4 py-1.5 rounded-xl border border-[#e8dcc8] hover:bg-white">Wyloguj</button>

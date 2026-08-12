@@ -59,7 +59,7 @@ export default function SmakowaloLanding() {
 
   const handleGiftSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    alert(`Voucher na plan ${giftForm.plan} osoby dla ${giftForm.recipient} został przygotowany. Link trafi na ${giftForm.email}. (W produkcji: kod + Stripe)`);
+    alert(`Voucher na plan ${giftForm.plan} osoby dla ${giftForm.recipient} został przygotowany. Link trafi na ${giftForm.email}.`);
     setShowGiftModal(false);
     setGiftForm({ recipient: '', email: '', plan: '4', message: '' });
   };
@@ -70,7 +70,7 @@ export default function SmakowaloLanding() {
       <nav className="border-b bg-white/95 backdrop-blur-sm sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-3">
-            <Logo width={118} height={30} />
+            <Logo width={168} height={42} />
           </Link>
 
           <div className="hidden md:flex items-center gap-8 text-sm font-medium">
@@ -226,7 +226,7 @@ export default function SmakowaloLanding() {
           <div className="text-center mb-10">
             <div className="text-[#15803d] font-semibold tracking-widest text-sm mb-2">WYBIERZ SWÓJ ROZMIAR</div>
             <h2 className="heading-playfair text-4xl font-semibold tracking-tight text-[#14532d]">Plany i ceny</h2>
-            <p className="mt-2 text-[#4b5563]">Pierwszy box mocno w promocji (jak u najlepszych meal-kitów). Potem cena regularna. Dostawa 19 zł (gratis od 350 zł lub przy subskrypcji).</p>
+            <p className="mt-2 text-[#4b5563]">Pierwszy box mocno w promocji. Potem cena regularna. Dostawa 19 zł (gratis od 350 zł lub przy subskrypcji).</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
@@ -271,9 +271,9 @@ export default function SmakowaloLanding() {
       {/* Dodatki + nowe strumienie przychodu (self-reflect monetization) */}
       <section id="dodatkowo" className="max-w-6xl mx-auto px-6 py-16 border-t border-[#e8dcc8]">
         <div className="text-center mb-10">
-          <div className="text-[#15803d] tracking-widest font-semibold text-sm mb-1">DODATKOWE PRZYCHODY + WARTOŚĆ DLA KLIENTA</div>
+          <div className="text-[#15803d] tracking-widest font-semibold text-sm mb-1">COŚ WIĘCEJ NIŻ BOX</div>
           <h2 className="heading-playfair text-3xl font-semibold tracking-tight text-[#14532d]">Urozmaić box, podaruj, firma, edukacja</h2>
-          <p className="text-[#4b5563] mt-1">+15-25% średnia wartość zamówienia • wyższe marże B2B • powtarzalne przychody</p>
+          <p className="text-[#4b5563] mt-1">Dodatki, vouchery, oferta dla firm i program poleceń</p>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-5 gap-5">
@@ -281,7 +281,6 @@ export default function SmakowaloLanding() {
           <div className="bg-white border border-[#e8dcc8] rounded-3xl p-6">
             <div className="font-semibold mb-1">Dodatki do boxa</div>
             <div className="text-sm text-[#4b5563]">Deser tygodnia +29 zł • Butelka wina +49 zł • Śniadaniowy box +39 zł • Przekąski</div>
-            <div className="text-[11px] text-[#6b7280] mt-3">+15-20% na zamówienie. Proste upsell w kreatorze i podsumowaniu.</div>
           </div>
 
           {/* Gifts */}
@@ -301,15 +300,13 @@ export default function SmakowaloLanding() {
           {/* Education + Merch */}
           <div className="bg-white border border-[#e8dcc8] rounded-3xl p-6">
             <div className="font-semibold mb-1">Edukacja + Merch</div>
-            <div className="text-sm text-[#4b5563]">E-book „Sezonowo z Poznania” 49 zł • Warsztaty weekendowe • Fartuchy i torby z logo (marża 50%+).</div>
-            <div className="text-[11px] text-[#6b7280] mt-3">Buduje lojalność i markę. Sprzedaż online + na eventach.</div>
+            <div className="text-sm text-[#4b5563]">E-book „Sezonowo z Poznania” 49 zł • Warsztaty weekendowe • Fartuchy i torby z logo.</div>
           </div>
 
           {/* Referral / Loyalty */}
           <div className="bg-white border border-[#e8dcc8] rounded-3xl p-6">
             <div className="flex items-center gap-2 mb-1"><Award className="w-4 h-4 text-[#15803d]" /><span className="font-semibold">Poleć i zyskaj</span></div>
             <div className="text-sm text-[#4b5563]">Zaproś 3 znajomych — dostajesz tydzień gratis. Program lojalnościowy (punkty = darmowe dodatki).</div>
-            <div className="text-[11px] text-[#6b7280] mt-3">Najtańszy i najskuteczniejszy kanał pozyskania (badania meal-kit: 30-40% nowych z poleceń).</div>
           </div>
         </div>
       </section>
@@ -339,7 +336,7 @@ export default function SmakowaloLanding() {
             ["Jak dokładnie działają alergeny i ostrzeżenia?", "W kreatorze zaznaczasz alergeny. Na liście dań i w podsumowaniu widzisz czerwone ostrzeżenia personalne. Zawsze sprawdzaj etykiety — kuchnie mogą mieć ślady."],
             ["Czy mogę pominąć tydzień lub zmienić plan?", "Tak. W panelu klienta pauzujesz, zmieniasz liczbę dań/osób lub całkowicie rezygnujesz bez kar."],
             ["Dostawa tylko Poznań?", "Na start Poznań + 30 km (Wilda, Jeżyce, Rataje, Komorniki, Swarzędz itd.). Planujemy poszerzenie po pierwszym sezonie."],
-            ["Pierwszy box naprawdę w promocji?", "Tak. Badania rynku meal-kit pokazują, że mocny first-box discount (40-55%) jest kluczowy do konwersji. Potem klienci zostają dla wygody i jakości."],
+            ["Pierwszy box naprawdę w promocji?", "Tak. Pierwszy tydzień jest w wyraźnie niższej cenie. Potem płacisz regularnie — i zostajesz, bo oszczędzasz czas i wiesz, co jesz."],
           ].map(([q, a], i) => (
             <details key={i} className="bg-white border border-[#e8dcc8] rounded-3xl px-5 py-4 group">
               <summary className="font-medium cursor-pointer list-none flex justify-between items-center">{q} <span className="text-[#6b7280] group-open:rotate-180 transition">↓</span></summary>
@@ -363,7 +360,10 @@ export default function SmakowaloLanding() {
 
       <footer className="border-t py-8 px-6 text-sm text-[#6b7280]">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between gap-4">
-          <div>© {new Date().getFullYear()} Smakowało — SMAKOWAŁO sp. z o.o., Poznań (KRS 0001093816)</div>
+          <div className="flex flex-col gap-3">
+            <Logo width={150} height={38} />
+            <div>© {new Date().getFullYear()} Smakowało — SMAKOWAŁO sp. z o.o., Poznań (KRS 0001093816)</div>
+          </div>
           <div className="flex gap-5">
             <Link href="/regulamin" className="hover:text-[#15803d]">Regulamin</Link>
             <Link href="/polityka-prywatnosci" className="hover:text-[#15803d]">Polityka prywatności</Link>
@@ -377,7 +377,7 @@ export default function SmakowaloLanding() {
         <div className="fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-4" onClick={() => setShowVideo(false)}>
           <div className="bg-white rounded-3xl max-w-4xl w-full overflow-hidden" onClick={e => e.stopPropagation()}>
             <div className="p-4 border-b flex justify-between items-center">
-              <div className="font-medium">Smakowało — jak to wygląda w praktyce (demo)</div>
+              <div className="font-medium">Jak to wygląda w praktyce</div>
               <button onClick={() => setShowVideo(false)} className="text-xl leading-none">×</button>
             </div>
             <div className="bg-black">
@@ -390,7 +390,6 @@ export default function SmakowaloLanding() {
                 poster="/images/hero-kitchen.jpg"
               />
             </div>
-            <div className="p-4 text-xs text-[#6b7280]">Niski klucz, naturalne światło, prawdziwe składniki. Film bez narracji — same obrazy z kuchni.</div>
           </div>
         </div>
       )}
@@ -400,7 +399,7 @@ export default function SmakowaloLanding() {
         <div className="fixed inset-0 z-[200] bg-black/70 flex items-center justify-center p-4" onClick={() => setShowCorporateModal(false)}>
           <div className="bg-white rounded-3xl w-full max-w-md p-8" onClick={e => e.stopPropagation()}>
             <h3 className="text-2xl font-semibold text-[#14532d] mb-1">Oferta dla firm i zespołów</h3>
-            <p className="text-sm text-[#4b5563] mb-5">Boxy tygodniowe, warsztaty, catering eventowy. Wysoka marża, powtarzalność.</p>
+            <p className="text-sm text-[#4b5563] mb-5">Boxy tygodniowe, warsztaty i catering eventowy dla zespołów z Poznania.</p>
             <form onSubmit={handleCorporateSubmit} className="space-y-4 text-sm">
               <input required placeholder="Nazwa firmy" className="w-full border border-[#e8dcc8] rounded-2xl px-4 py-3" value={corporateForm.company} onChange={e => setCorporateForm({...corporateForm, company: e.target.value})} />
               <input required type="email" placeholder="Email kontaktowy" className="w-full border border-[#e8dcc8] rounded-2xl px-4 py-3" value={corporateForm.email} onChange={e => setCorporateForm({...corporateForm, email: e.target.value})} />
@@ -428,9 +427,8 @@ export default function SmakowaloLanding() {
                 <option value="4-4">Dla 4 osób — 4 tygodnie</option>
               </select>
               <textarea placeholder="Krótka wiadomość do obdarowanego (opcjonalnie)" className="w-full border border-[#e8dcc8] rounded-2xl px-4 py-3 h-16" value={giftForm.message} onChange={e => setGiftForm({...giftForm, message: e.target.value})} />
-              <Button type="submit" className="w-full bg-[#15803d] rounded-2xl h-12">Kup voucher (później Stripe)</Button>
+              <Button type="submit" className="w-full bg-[#15803d] rounded-2xl h-12">Kup voucher</Button>
             </form>
-            <div className="text-[10px] text-center text-[#6b7280] mt-3">W produkcji: automatyczny kod + płatność + ładny PDF do wydruku/wysyłki.</div>
           </div>
         </div>
       )}

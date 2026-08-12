@@ -1,10 +1,14 @@
 'use client';
 
 import Link from 'next/link';
+import Logo from '@/components/Logo';
 
 export default function PolitykaPrywatnosci() {
   return (
     <div className="min-h-screen bg-[#f8f5f0] py-12 px-6">
+      <div className="max-w-3xl mx-auto mb-6">
+        <Link href="/"><Logo width={168} height={42} /></Link>
+      </div>
       <div className="max-w-3xl mx-auto bg-white rounded-3xl p-8 border border-[#e8dcc8]">
         <h1 className="text-3xl font-semibold text-[#14532d] mb-6">Polityka Prywatności</h1>
         

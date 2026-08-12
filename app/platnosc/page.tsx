@@ -209,7 +209,7 @@ export default function Platnosc() {
     <div className="min-h-screen bg-[#f8f5f0]">
       <div className="bg-white border-b">
         <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/"><Logo width={100} height={26} /></Link>
+          <Link href="/"><Logo width={156} height={40} /></Link>
           <div className="text-sm text-[#6b7280]">Płatność • Krok 4 z 4</div>
         </div>
       </div>

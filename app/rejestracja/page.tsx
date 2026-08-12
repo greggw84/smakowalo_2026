@@ -83,7 +83,7 @@ export default function Rejestracja() {
     <div className="min-h-screen bg-[#f8f5f0] flex items-center justify-center px-6">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <Link href="/"><Logo width={120} height={30} /></Link>
+          <Link href="/"><Logo width={200} height={54} /></Link>
           <h1 className="text-3xl font-semibold tracking-tight text-[#14532d] mt-6">Załóż konto</h1>
           <p className="text-[#4b5563] mt-2">Zapisujemy Twoje wybory i alergie na przyszłość.</p>
         </div>

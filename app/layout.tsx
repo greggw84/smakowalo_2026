@@ -32,7 +32,8 @@ export const metadata: Metadata = {
   title: "Smakowało | Zdrowe zestawy posiłków z dostawą | Poznań i okolice",
   description: "Świeże składniki + dokładne przepisy. Wybieraj spośród 2, 4 lub 6 osób. Dostawa we wtorki i czwartki w Poznaniu i do 30 km. Zdrowe jedzenie bez marnowania czasu i żywności.",
   icons: {
-    icon: "/favicon.ico",
+    icon: "/icon-smakowalo.jpg",
+    apple: "/icon-smakowalo.jpg",
   },
 };
 

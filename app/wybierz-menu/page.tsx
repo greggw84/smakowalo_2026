@@ -103,7 +103,7 @@ export default function Kreator() {
       {/* Header */}
       <div className="bg-white border-b sticky top-0 z-50">
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <Link href="/"><Logo width={100} height={26} /></Link>
+          <Link href="/"><Logo width={156} height={40} /></Link>
           <div className="text-sm text-[#6b7280] font-medium">Kreator • Krok 2 z 4</div>
           <Link href="/menu" className="text-sm text-[#15803d] hover:underline">Zobacz pełne menu</Link>
         </div>
