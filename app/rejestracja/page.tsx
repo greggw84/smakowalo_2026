@@ -133,14 +133,8 @@ export default function Rejestracja() {
             </button>
 
             {message && (
-              <p className="text-sm text-center text-[#15803d]">{message}</p>
+              <p className={`text-sm text-center ${message.includes('już zarejestrowany') || message.includes('Nie udało') ? 'text-red-700' : 'text-[#15803d]'}`}>{message}</p>
             )}
-
-            {/* Fix for the reported issue: email confirmation */}
-            <div className="mt-4 text-[10px] text-[#6b7280] border border-[#e8dcc8] rounded-2xl p-3 leading-snug">
-              W dev: jeśli nie dostałeś maila z potwierdzeniem — w Supabase (Authentication → Providers → Email) wyłącz "Confirm email". 
-              Po rejestracji powinieneś być zalogowany od razu i wybór zapisze się automatycznie.
-            </div>
           </form>
 
           <div className="text-center text-sm text-[#6b7280] mt-6">

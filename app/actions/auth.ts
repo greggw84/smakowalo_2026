@@ -8,7 +8,10 @@ function friendlyAuthError(message: string) {
     return 'Najpierw potwierdź email — sprawdź skrzynkę i folder spam.'
   }
   if (raw.includes('invalid login credentials')) {
-    return 'Nieprawidłowy email lub hasło. Jeśli konto jest nowe — potwierdź najpierw maila.'
+    return 'Nieprawidłowy email lub hasło. To konto może być przez Google — spróbuj innego logowania albo innego maila.'
+  }
+  if (raw.includes('user already registered') || raw.includes('already been registered')) {
+    return 'Ten email jest już zarejestrowany. Zaloguj się albo użyj innego adresu.'
   }
   if (raw.includes('load failed') || raw.includes('failed to fetch') || raw.includes('network')) {
     return 'Nie udało się połączyć z kontem. Sprawdź internet i spróbuj jeszcze raz.'
@@ -31,7 +34,7 @@ export async function loginWithPassword(email: string, password: string) {
 export async function signUpWithPassword(email: string, password: string, name: string, origin: string) {
   try {
     const supabase = await createClient()
-    const { error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -40,7 +43,18 @@ export async function signUpWithPassword(email: string, password: string, name: 
       },
     })
     if (error) return { error: friendlyAuthError(error.message) }
-    return { success: true as const }
+
+    // Existing email: Supabase returns 200 with empty identities and no session
+    // so it does not leak whether the address is taken — and it does not send mail.
+    const identities = data.user?.identities ?? []
+    if (!data.session && identities.length === 0) {
+      return {
+        error:
+          'Ten email jest już zarejestrowany. Zaloguj się (to konto jest przez Google) albo użyj innego adresu.',
+      }
+    }
+
+    return { success: true as const, needsConfirmation: !data.session }
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Nie udało się założyć konta.'
     return { error: friendlyAuthError(message) }
