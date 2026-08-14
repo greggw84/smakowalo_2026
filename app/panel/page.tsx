@@ -9,23 +9,19 @@ import { dietaryOptions, allAllergens } from '@/lib/data/recipes';
 import { DietaryPreference, Allergen } from '@/lib/types';
 import { toast } from 'sonner';
 import { AlertTriangle, Pause, Play, Repeat, CalendarX, Save, Plus } from 'lucide-react';
-
-interface Selection {
-  id: string;
-  people_count: number;
-  meals_per_week: number;
-  dietary_preferences: string[];
-  allergens: string[];
-  selected_recipe_ids: string[];
-  week_label: string | null;
-  status: string;
-  created_at: string;
-  updated_at?: string;
-}
+import {
+  type AccountSelection,
+  loadAccountHistory,
+  persistAccount,
+  recipeTitle,
+  statusLabel,
+  toSavedSelection,
+} from '@/lib/account';
+import { loadSelection, saveSelection } from '@/lib/selection-storage';
 
 export default function PanelKlienta() {
   const [user, setUser] = useState<User | null>(null);
-  const [selections, setSelections] = useState<Selection[]>([]);
+  const [selections, setSelections] = useState<AccountSelection[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
@@ -59,15 +55,56 @@ export default function PanelKlienta() {
     setUser(user);
 
     if (user) {
-      const { data, error } = await supabase
-        .from('user_selections')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+      const history = await loadAccountHistory(supabase, user);
+      const local = loadSelection();
+      const merged = [...history];
 
-      if (!error && data) {
-        setSelections(data as Selection[]);
+      if (local) {
+        const alreadySaved = history.some((row) => {
+          const sameRecipes =
+            [...row.selected_recipe_ids].sort().join(',') ===
+            [...local.selectedRecipeIds].sort().join(',');
+          const sameDay = row.created_at.slice(0, 10) === new Date(local.timestamp).toISOString().slice(0, 10);
+          return sameRecipes && sameDay;
+        });
+
+        if (!alreadySaved) {
+          merged.unshift({
+            id: 'local-current',
+            source: 'local',
+            people_count: local.peopleCount,
+            meals_per_week: local.mealsPerWeek,
+            dietary_preferences: local.selectedPreferences,
+            allergens: local.selectedAllergens,
+            selected_recipe_ids: local.selectedRecipeIds,
+            dish_names: local.selectedRecipeIds.map(recipeTitle),
+            week_label: 'Bieżący wybór (to urządzenie)',
+            status: 'pending',
+            created_at: new Date(local.timestamp).toISOString(),
+          });
+
+          const saved = await persistAccount(
+            supabase,
+            user,
+            {
+              peopleCount: local.peopleCount,
+              mealsPerWeek: local.mealsPerWeek,
+              dietaryPreferences: local.selectedPreferences,
+              allergens: local.selectedAllergens,
+              selectedRecipeIds: local.selectedRecipeIds,
+            },
+            'pending'
+          );
+          if (saved.success) {
+            const refreshed = await loadAccountHistory(supabase, user);
+            setSelections(refreshed.length ? refreshed : merged);
+            setLoading(false);
+            return;
+          }
+        }
       }
+
+      setSelections(merged);
     }
     setLoading(false);
   }
@@ -108,21 +145,24 @@ export default function PanelKlienta() {
     if (!currentProfile || !user) return;
     setSaving(true);
 
-    const { error } = await supabase
-      .from('user_selections')
-      .update({
-        people_count: editPeople,
-        meals_per_week: editMeals,
-        dietary_preferences: editPrefs,
+    const result = await persistAccount(
+      supabase,
+      user,
+      {
+        peopleCount: editPeople,
+        mealsPerWeek: editMeals,
+        dietaryPreferences: editPrefs,
         allergens: editAllergens,
-      })
-      .eq('id', currentProfile.id)
-      .eq('user_id', user.id);
+        selectedRecipeIds: currentProfile.selected_recipe_ids || [],
+      },
+      currentProfile.status === 'confirmed' ? 'confirmed' : 'pending'
+    );
 
-    if (error) {
-      toast.error('Nie udało się zapisać zmian: ' + error.message);
+    if (!result.success) {
+      toast.error('Nie udało się zapisać zmian: ' + (result.error || ''));
     } else {
       toast.success('Preferencje i plan zostały zaktualizowane. Będą używane w przyszłych boxach.');
+      saveSelection(toSavedSelection({ ...currentProfile, people_count: editPeople, meals_per_week: editMeals, dietary_preferences: editPrefs, allergens: editAllergens }));
       await loadData();
     }
     setSaving(false);
@@ -136,14 +176,24 @@ export default function PanelKlienta() {
     }
     setSaving(true);
 
-    const { error } = await supabase
-      .from('user_selections')
-      .update({ status: newStatus })
-      .eq('id', currentProfile.id)
-      .eq('user_id', user.id);
+    let saved = false;
+    if (!currentProfile.id.startsWith('order-') && !currentProfile.id.startsWith('sub-') && currentProfile.id !== 'local-current') {
+      const { error } = await supabase
+        .from('user_selections')
+        .update({ status: newStatus })
+        .eq('id', currentProfile.id)
+        .eq('user_id', user.id);
+      saved = !error;
+    }
 
-    if (error) {
-      toast.error('Błąd: ' + error.message);
+    const { error: subError } = await supabase
+      .from('subscriptions')
+      .update({ status: newStatus, updated_at: new Date().toISOString() })
+      .eq('user_id', user.id);
+    if (!subError) saved = true;
+
+    if (!saved) {
+      toast.error('Nie udało się zmienić statusu subskrypcji.');
     } else {
       toast.success(successMsg);
       await loadData();
@@ -180,7 +230,7 @@ export default function PanelKlienta() {
   const upcoming = getUpcomingDeliveries(4);
 
   // Map existing week_labels for quick lookup
-  const weekMap = new Map<string, Selection>();
+  const weekMap = new Map<string, AccountSelection>();
   selections.forEach(s => {
     if (s.week_label) weekMap.set(s.week_label, s);
   });
@@ -208,16 +258,33 @@ export default function PanelKlienta() {
     });
 
     if (error) {
-      toast.error('Nie udało się pominąć tygodnia: ' + error.message);
-    } else {
-      toast.success(`Pominięto: ${label}. Nie przyjdzie dostawa.`);
-      await loadData();
+      const { error: orderError } = await supabase.from('orders').insert({
+        user_id: user.id,
+        status: 'cancelled',
+        payment_status: 'pending',
+        total_amount: 0,
+        currency: 'PLN',
+        notes: JSON.stringify({
+          week_label: label,
+          skipped: true,
+          people_count: currentProfile.people_count,
+          meals_per_week: currentProfile.meals_per_week,
+        }),
+      });
+      if (orderError) {
+        toast.error('Nie udało się pominąć tygodnia: ' + (error.message || orderError.message));
+        setSaving(false);
+        return;
+      }
     }
+
+    toast.success(`Pominięto: ${label}. Nie przyjdzie dostawa.`);
+    await loadData();
     setSaving(false);
   };
 
   // ===== ZAMÓWIENIA / POWTÓRKI (Re-order + create this week) =====
-  const createOrderThisWeek = async (source?: Selection) => {
+  const createOrderThisWeek = async (source?: AccountSelection) => {
     if (!user) return;
     const base = source || currentProfile;
     if (!base) {
@@ -226,21 +293,21 @@ export default function PanelKlienta() {
     }
     setSaving(true);
 
-    const weekLabel = `Tydzień ${new Date().toISOString().slice(0, 10)}`;
+    const result = await persistAccount(
+      supabase,
+      user,
+      {
+        peopleCount: base.people_count,
+        mealsPerWeek: base.meals_per_week,
+        dietaryPreferences: base.dietary_preferences,
+        allergens: base.allergens,
+        selectedRecipeIds: source ? base.selected_recipe_ids : [],
+      },
+      'pending'
+    );
 
-    const { error } = await supabase.from('user_selections').insert({
-      user_id: user.id,
-      people_count: base.people_count,
-      meals_per_week: base.meals_per_week,
-      dietary_preferences: base.dietary_preferences,
-      allergens: base.allergens,
-      selected_recipe_ids: source ? base.selected_recipe_ids : [], // if reordering, copy recipes; else empty (user will choose)
-      week_label: weekLabel,
-      status: 'pending',
-    });
-
-    if (error) {
-      toast.error('Błąd przy tworzeniu zamówienia: ' + error.message);
+    if (!result.success) {
+      toast.error('Błąd przy tworzeniu zamówienia: ' + (result.error || ''));
     } else {
       toast.success('Zamówienie na ten tydzień utworzone! Przejdź do menu lub podsumowania jeśli chcesz doprecyzować dania.');
       await loadData();
@@ -248,7 +315,7 @@ export default function PanelKlienta() {
     setSaving(false);
   };
 
-  const repeatBox = (sel: Selection) => {
+  const repeatBox = (sel: AccountSelection) => {
     createOrderThisWeek(sel);
   };
 
@@ -330,7 +397,7 @@ export default function PanelKlienta() {
 
             {!currentProfile ? (
               <div className="py-8 text-center text-[#6b7280]">
-                Nie masz jeszcze profilu. <Link href="/wybierz-menu" className="text-[#15803d] underline">Zrób pierwszy wybór</Link>, żeby aktywować subskrypcję.
+                Nie masz jeszcze profilu. <Link href="/wybierz-menu" className="text-[#15803d] underline">Zrób pierwszy wybór</Link> — zapisze się od razu, bez Stripe.
               </div>
             ) : (
               <>
@@ -495,6 +562,7 @@ export default function PanelKlienta() {
             <div className="space-y-3">
               {selections.map((sel) => {
                 const isSkip = sel.status === 'skipped';
+                const dishes = (sel.dish_names?.length ? sel.dish_names : sel.selected_recipe_ids) || [];
                 return (
                   <div key={sel.id} className={`border rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center gap-3 ${isSkip ? 'border-amber-200 bg-amber-50/40' : 'border-[#e8dcc8]'}`}>
                     <div className="flex-1 min-w-0">
@@ -503,14 +571,27 @@ export default function PanelKlienta() {
                         {sel.week_label && ` • ${sel.week_label}`}
                       </div>
                       <div className="text-xs text-[#6b7280] mt-0.5">
-                        {new Date(sel.created_at).toLocaleDateString('pl-PL')} 
-                        {sel.selected_recipe_ids?.length > 0 && ` • ${sel.selected_recipe_ids.length} dań`}
+                        {new Date(sel.created_at).toLocaleDateString('pl-PL')}
+                        {sel.order_number && ` • ${sel.order_number}`}
                         {sel.allergens?.length > 0 && ` • Alergeny: ${sel.allergens.join(', ')}`}
+                        {sel.source === 'order' && ' • stare / zamówienie'}
+                        {sel.source === 'local' && ' • tylko na tym urządzeniu'}
                       </div>
+                      {dishes.length > 0 && (
+                        <div className="text-xs text-[#14532d] mt-1">
+                          {dishes.join(' • ')}
+                        </div>
+                      )}
+                      <div className="text-xs mt-1 font-medium text-[#15803d]">{statusLabel(sel)}</div>
                       {isSkip && <div className="text-xs text-amber-600 mt-1">Pominięty tydzień</div>}
                     </div>
 
                     <div className="flex gap-2">
+                      {(sel.payment_status === 'pending' || sel.status === 'pending' || sel.source === 'local') && (
+                        <Link href="/platnosc" className="flex items-center gap-1 text-sm px-4 py-2 rounded-2xl bg-[#15803d] text-white">
+                          Dokończ płatność
+                        </Link>
+                      )}
                       {!isSkip && sel.selected_recipe_ids?.length > 0 && (
                         <button
                           onClick={() => repeatBox(sel)}
@@ -529,8 +610,8 @@ export default function PanelKlienta() {
         </div>
 
         <div className="mt-8 text-center text-xs text-[#6b7280]">
-          Pełne zarządzanie subskrypcją działa (edycja profilu, pauza, pomijanie tygodni, powtórki). 
-          Zmiany są zapisywane w Twoim koncie Supabase i widoczne natychmiast.
+          Wybór z kreatora zapisuje się od razu — nie trzeba czekać na Stripe.
+          Widać tu nowe boxy i starsze zamówienia z konta.
         </div>
       </div>
     </div>

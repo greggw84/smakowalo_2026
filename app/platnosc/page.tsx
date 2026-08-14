@@ -7,6 +7,7 @@ import { sampleRecipes } from '@/lib/data/recipes';
 import Logo from '@/components/Logo';
 import { CheckCircle, ArrowRight } from 'lucide-react';
 import { loadSelection, saveSelection, clearSelection, type SavedSelection } from '@/lib/selection-storage';
+import { persistAccount } from '@/lib/account';
 
 export default function Platnosc() {
   const [selection, setSelection] = useState<SavedSelection | null>(null);
@@ -57,16 +58,21 @@ export default function Platnosc() {
     if (selection && user) {
       try {
         const supabase = createClient()
-        await supabase.from('user_selections').insert({
-          user_id: user.id,
-          people_count: selection.peopleCount,
-          meals_per_week: selection.mealsPerWeek,
-          dietary_preferences: selection.selectedPreferences,
-          allergens: selection.selectedAllergens,
-          selected_recipe_ids: selection.selectedRecipeIds,
-          week_label: `Tydzień ${new Date().toISOString().slice(0, 10)}`,
-          status: 'confirmed',
-        })
+        const result = await persistAccount(
+          supabase,
+          user,
+          {
+            peopleCount: selection.peopleCount,
+            mealsPerWeek: selection.mealsPerWeek,
+            dietaryPreferences: selection.selectedPreferences,
+            allergens: selection.selectedAllergens,
+            selectedRecipeIds: selection.selectedRecipeIds,
+          },
+          'confirmed'
+        )
+        if (!result.success) {
+          console.error('Could not mark order confirmed', result.error)
+        }
       } catch (e) {
         console.error('Could not mark order confirmed', e)
       }

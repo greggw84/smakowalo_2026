@@ -28,17 +28,18 @@ CREATE INDEX IF NOT EXISTS idx_user_selections_created_at ON public.user_selecti
 -- RLS Policies
 ALTER TABLE public.user_selections ENABLE ROW LEVEL SECURITY;
 
--- Użytkownik widzi tylko swoje wybory
+DROP POLICY IF EXISTS "Users can view their own selections" ON public.user_selections;
+DROP POLICY IF EXISTS "Users can insert their own selections" ON public.user_selections;
+DROP POLICY IF EXISTS "Users can update their own selections" ON public.user_selections;
+
 CREATE POLICY "Users can view their own selections"
   ON public.user_selections FOR SELECT
   USING (auth.uid() = user_id);
 
--- Użytkownik może tworzyć swoje wybory
 CREATE POLICY "Users can insert their own selections"
   ON public.user_selections FOR INSERT
   WITH CHECK (auth.uid() = user_id);
 
--- Użytkownik może aktualizować swoje wybory
 CREATE POLICY "Users can update their own selections"
   ON public.user_selections FOR UPDATE
   USING (auth.uid() = user_id);
