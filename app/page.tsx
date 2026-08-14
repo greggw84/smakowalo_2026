@@ -134,17 +134,12 @@ export default function SmakowaloLanding() {
               alt="Świeże składniki Smakowało — niski klucz, domowa kuchnia Poznań" 
               className="absolute inset-0 w-full h-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/55 via-black/10 to-transparent" />
-            <div className="absolute bottom-0 left-0 right-0 p-7 text-white">
-              <div className="uppercase tracking-[2px] text-xs mb-1 opacity-80">PROSTO Z POLSKICH UPRAW</div>
-              <div className="text-2xl font-semibold tracking-tight">Dokładnie tyle, ile potrzebujesz.<br />Zero marnowania.</div>
-            </div>
-            {/* Subtle play hint for video lovers on desktop */}
-            <button 
+            <button
               onClick={() => setShowVideo(true)}
-              className="absolute top-6 right-6 flex items-center gap-2 bg-white/95 text-[#14532d] text-sm px-4 py-2 rounded-2xl shadow hover:bg-white transition"
+              aria-label="Odtwórz wideo"
+              className="absolute top-6 right-6 flex items-center justify-center w-11 h-11 bg-white/95 text-[#14532d] rounded-full shadow hover:bg-white transition"
             >
-              <Play className="w-4 h-4" /> Zobacz 9s wideo
+              <Play className="w-4 h-4 ml-0.5" />
             </button>
           </div>
         </div>
@@ -154,7 +149,6 @@ export default function SmakowaloLanding() {
       <section className="max-w-6xl mx-auto px-6 py-10 border-b border-[#e8dcc8]">
         <div className="flex flex-col md:flex-row items-center gap-8">
           <div className="flex-1">
-            <div className="text-[#15803d] text-xs tracking-[2px] font-semibold mb-2">ZOBACZ W PRAKTYCE</div>
             <h2 className="heading-playfair text-4xl font-semibold tracking-tight text-[#14532d] mb-3">Jak wygląda box i gotowanie w domu</h2>
             <p className="text-[#4b5563] max-w-md">Krótki filmik z otwierania pudełka i przygotowaniem jednego z dań. Spokojnie, bez pośpiechu, w poznańskim świetle.</p>
             <button 
@@ -174,7 +168,6 @@ export default function SmakowaloLanding() {
                 <Play className="w-7 h-7 text-[#15803d] ml-0.5" />
               </div>
             </div>
-            <div className="absolute bottom-3 right-3 text-xs bg-black/70 text-white px-2.5 py-0.5 rounded">9 sekund • bez narracji</div>
           </div>
         </div>
       </section>
@@ -213,7 +206,6 @@ export default function SmakowaloLanding() {
             ].map((v, idx) => (
               <div key={idx} className="relative rounded-3xl overflow-hidden border border-[#e8dcc8] shadow-sm aspect-[16/10]">
                 <img src={v.src} alt={v.cap} className="absolute inset-0 w-full h-full object-cover" />
-                <div className="absolute bottom-0 p-5 text-white text-sm bg-gradient-to-t from-black/70 w-full">{v.cap}</div>
               </div>
             ))}
           </div>
@@ -375,21 +367,22 @@ export default function SmakowaloLanding() {
       {/* VIDEO MODAL — desktop hero video */}
       {showVideo && (
         <div className="fixed inset-0 z-[200] bg-black/80 flex items-center justify-center p-4" onClick={() => setShowVideo(false)}>
-          <div className="bg-white rounded-3xl max-w-4xl w-full overflow-hidden" onClick={e => e.stopPropagation()}>
-            <div className="p-4 border-b flex justify-between items-center">
-              <div className="font-medium">Jak to wygląda w praktyce</div>
-              <button onClick={() => setShowVideo(false)} className="text-xl leading-none">×</button>
-            </div>
-            <div className="bg-black">
-              <video 
-                src="/videos/smakowalo-hero-demo.mp4" 
-                controls 
-                autoPlay 
-                playsInline 
-                className="w-full max-h-[70vh] object-contain" 
-                poster="/images/hero-kitchen.jpg"
-              />
-            </div>
+          <div className="relative max-w-4xl w-full overflow-hidden rounded-3xl bg-black" onClick={e => e.stopPropagation()}>
+            <button
+              onClick={() => setShowVideo(false)}
+              aria-label="Zamknij"
+              className="absolute top-3 right-3 z-10 w-9 h-9 rounded-full bg-black/60 text-white text-xl leading-none hover:bg-black/80"
+            >
+              ×
+            </button>
+            <video
+              src="/videos/smakowalo-hero-demo.mp4"
+              controls
+              autoPlay
+              playsInline
+              className="w-full max-h-[80vh] object-contain"
+              poster="/images/hero-kitchen.jpg"
+            />
           </div>
         </div>
       )}
