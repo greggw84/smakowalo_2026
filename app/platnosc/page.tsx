@@ -6,14 +6,7 @@ import { createClient } from '@/lib/supabase/client';
 import { sampleRecipes } from '@/lib/data/recipes';
 import Logo from '@/components/Logo';
 import { CheckCircle, ArrowRight } from 'lucide-react';
-
-interface SavedSelection {
-  peopleCount: 2 | 4 | 6;
-  mealsPerWeek: 3 | 4 | 5;
-  selectedPreferences: string[];
-  selectedAllergens: string[];
-  selectedRecipeIds: string[];
-}
+import { loadSelection, saveSelection, clearSelection, type SavedSelection } from '@/lib/selection-storage';
 
 export default function Platnosc() {
   const [selection, setSelection] = useState<SavedSelection | null>(null);
@@ -22,66 +15,30 @@ export default function Platnosc() {
   const [paid, setPaid] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  const supabase = createClient();
-
   useEffect(() => {
     const load = async () => {
-      // Try localStorage first (pending order from podsumowanie)
-      let hasLocal = false;
-      const saved = localStorage.getItem('smakowalo_current_selection');
-      if (saved) {
-        hasLocal = true;
-        const parsed = JSON.parse(saved) as SavedSelection;
-        setSelection(parsed);
-        const found = sampleRecipes.filter(r => parsed.selectedRecipeIds.includes(r.id));
-        setDishes(found);
+      const parsed = loadSelection()
+      if (parsed) {
+        setSelection(parsed)
+        setDishes(sampleRecipes.filter((r) => parsed.selectedRecipeIds.includes(r.id)))
+        saveSelection(parsed)
       }
 
-      // Always get the current user
-      const { data: { user: currentUser } } = await supabase.auth.getUser();
-      setUser(currentUser);
-
-      // Robust recovery from DB when there is no localStorage data.
-      // This fixes the "Brak aktywnego zamówienia do opłacenia." error when:
-      // - User just came back from login/register (auth pages clear localStorage)
-      // - Direct navigation or refresh
-      // - localStorage was cleared in podsumowanie after auto-save
-      if (!hasLocal && currentUser) {
-        try {
-          const { data: latestRows, error: fetchErr } = await supabase
-            .from('user_selections')
-            .select('*')
-            .eq('user_id', currentUser.id)
-            .order('created_at', { ascending: false })
-            .limit(1);
-
-          if (fetchErr) {
-            console.error('platnosc: error fetching latest selection', fetchErr);
-          }
-
-          if (latestRows && latestRows.length > 0) {
-            const latest = latestRows[0];
-            const parsed: SavedSelection = {
-              peopleCount: latest.people_count as 2 | 4 | 6,
-              mealsPerWeek: latest.meals_per_week as 3 | 4 | 5,
-              selectedPreferences: latest.dietary_preferences || [],
-              selectedAllergens: latest.allergens || [],
-              selectedRecipeIds: latest.selected_recipe_ids || [],
-            };
-            setSelection(parsed);
-            const found = sampleRecipes.filter(r => parsed.selectedRecipeIds.includes(r.id));
-            setDishes(found);
-          }
-        } catch (e) {
-          console.error('platnosc: failed to recover from DB', e);
-        }
+      try {
+        const supabase = createClient()
+        const {
+          data: { user: currentUser },
+        } = await supabase.auth.getUser()
+        setUser(currentUser)
+      } catch (e) {
+        console.error('platnosc: auth check failed', e)
       }
 
-      setLoading(false);
-    };
+      setLoading(false)
+    }
 
-    load();
-  }, [supabase]);
+    load()
+  }, [])
 
   const getFirstBoxPrice = (people: number) => {
     if (people === 2) return 119;
@@ -99,7 +56,7 @@ export default function Platnosc() {
 
     if (selection && user) {
       try {
-        // Best effort: insert a confirmed order row (or we could update latest)
+        const supabase = createClient()
         await supabase.from('user_selections').insert({
           user_id: user.id,
           people_count: selection.peopleCount,
@@ -109,14 +66,14 @@ export default function Platnosc() {
           selected_recipe_ids: selection.selectedRecipeIds,
           week_label: `Tydzień ${new Date().toISOString().slice(0, 10)}`,
           status: 'confirmed',
-        });
+        })
       } catch (e) {
-        console.error('Could not mark order confirmed', e);
+        console.error('Could not mark order confirmed', e)
       }
     }
 
-    localStorage.removeItem('smakowalo_current_selection');
-    setPaid(true);
+    clearSelection()
+    setPaid(true)
 
     // After short delay, go to panel (user sees their orders there)
     setTimeout(() => {
@@ -152,39 +109,18 @@ export default function Platnosc() {
             </Link>
 
             <button
-              onClick={async () => {
-                // Force recovery from the latest DB record for this user
-                const { data: { user: u } } = await supabase.auth.getUser();
-                if (!u) {
-                  alert('Musisz być zalogowany, żeby pobrać zamówienia.');
-                  return;
+              onClick={() => {
+                const parsed = loadSelection()
+                if (!parsed) {
+                  alert('Nie znaleziono zapisanego wyboru. Wróć do kreatora.')
+                  return
                 }
-                const { data: latestRows } = await supabase
-                  .from('user_selections')
-                  .select('*')
-                  .eq('user_id', u.id)
-                  .order('created_at', { ascending: false })
-                  .limit(1);
-
-                if (latestRows && latestRows.length > 0) {
-                  const latest = latestRows[0];
-                  const parsed: SavedSelection = {
-                    peopleCount: latest.people_count as 2 | 4 | 6,
-                    mealsPerWeek: latest.meals_per_week as 3 | 4 | 5,
-                    selectedPreferences: latest.dietary_preferences || [],
-                    selectedAllergens: latest.allergens || [],
-                    selectedRecipeIds: latest.selected_recipe_ids || [],
-                  };
-                  setSelection(parsed);
-                  const found = sampleRecipes.filter(r => parsed.selectedRecipeIds.includes(r.id));
-                  setDishes(found);
-                } else {
-                  alert('Nie znaleziono żadnych zapisanych zamówień na Twoim koncie.');
-                }
+                setSelection(parsed)
+                setDishes(sampleRecipes.filter((r) => parsed.selectedRecipeIds.includes(r.id)))
               }}
               className="block w-full py-3 border border-[#e8dcc8] rounded-2xl text-sm"
             >
-              Spróbuj załadować ostatnie zamówienie z konta
+              Spróbuj załadować ostatni wybór
             </button>
           </div>
         </div>

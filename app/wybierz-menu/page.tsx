@@ -6,6 +6,7 @@ import { dietaryOptions, allAllergens, sampleRecipes } from '@/lib/data/recipes'
 import { DietaryPreference, Allergen, Recipe } from '@/lib/types';
 import { AlertTriangle, Plus, Minus, Check } from 'lucide-react';
 import Logo from '@/components/Logo';
+import { saveSelection } from '@/lib/selection-storage';
 
 export default function Kreator() {
   // === PLAN ===
@@ -83,19 +84,16 @@ export default function Kreator() {
       return;
     }
 
-    // Zapisujemy wszystko do localStorage (na razie do podglądu)
-    const selection = {
+    saveSelection({
       peopleCount,
       mealsPerWeek,
       selectedPreferences,
       selectedAllergens,
       selectedRecipeIds,
-      timestamp: Date.now()
-    };
-    localStorage.setItem('smakowalo_current_selection', JSON.stringify(selection));
+      timestamp: Date.now(),
+    })
 
-    // Przechodzimy do podsumowania
-    window.location.href = '/podsumowanie';
+    window.location.href = '/podsumowanie'
   };
 
   return (

@@ -37,41 +37,30 @@ export default function Rejestracja() {
       return;
     }
 
-    // Po udanej rejestracji próbujemy zapisać wybór z kreatora
-    const savedSelection = localStorage.getItem('smakowalo_current_selection');
+    // Keep the cart locally even if the DB table is missing / email is unconfirmed.
+    const { loadSelection } = await import('@/lib/selection-storage')
+    const savedSelection = loadSelection()
 
     if (savedSelection) {
       try {
-        const selection = JSON.parse(savedSelection);
-
-        const result = await saveUserSelection({
-          peopleCount: selection.peopleCount,
-          mealsPerWeek: selection.mealsPerWeek,
-          dietaryPreferences: selection.selectedPreferences,
-          allergens: selection.selectedAllergens,
-          selectedRecipeIds: selection.selectedRecipeIds,
-        });
-
-        if (result.success) {
-          localStorage.removeItem('smakowalo_current_selection');
-          setMessage('Konto utworzone i Twój wybór został zapisany! Sprawdź email.');
-
-          // Respect returnTo so the order flow continues (back to podsumowanie → payment)
-          const params = new URLSearchParams(window.location.search);
-          const returnTo = params.get('returnTo') || '/panel';
-          setTimeout(() => {
-            window.location.href = returnTo;
-          }, 1200);
-        } else {
-          setMessage('Konto utworzone, ale nie udało się zapisać wyboru. Zaloguj się, żeby dokończyć.');
-        }
+        await saveUserSelection({
+          peopleCount: savedSelection.peopleCount,
+          mealsPerWeek: savedSelection.mealsPerWeek,
+          dietaryPreferences: savedSelection.selectedPreferences,
+          allergens: savedSelection.selectedAllergens,
+          selectedRecipeIds: savedSelection.selectedRecipeIds,
+        })
       } catch (err) {
-        console.error(err);
-        setMessage('Konto utworzone. Sprawdź email, żeby potwierdzić rejestrację.');
+        console.error(err)
       }
-    } else {
-      setMessage('Konto utworzone! Sprawdź swoją skrzynkę email.');
     }
+
+    setMessage('Konto utworzone! Sprawdź email, żeby potwierdzić rejestrację.')
+    const params = new URLSearchParams(window.location.search)
+    const returnTo = params.get('returnTo') || '/panel'
+    setTimeout(() => {
+      window.location.href = returnTo
+    }, 1200)
 
     setLoading(false);
   };
@@ -139,7 +128,7 @@ export default function Rejestracja() {
 
           <div className="text-center text-sm text-[#6b7280] mt-6">
             Masz już konto?{' '}
-            <Link href="/logowanie" className="text-[#15803d] font-medium hover:underline">
+            <Link href="/logowanie?returnTo=/podsumowanie" className="text-[#15803d] font-medium hover:underline">
               Zaloguj się
             </Link>
           </div>

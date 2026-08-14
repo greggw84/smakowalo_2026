@@ -36,23 +36,22 @@ export default function Logowanie() {
     }
 
     // Po zalogowaniu sprawdzamy czy jest niezapisany wybór z kreatora
-    const savedSelection = localStorage.getItem('smakowalo_current_selection');
+    const { loadSelection } = await import('@/lib/selection-storage')
+    const savedSelection = loadSelection()
 
     if (savedSelection) {
       try {
-        const selection = JSON.parse(savedSelection);
-
         const { saveUserSelection } = await import('@/app/actions/save-selection');
         const result = await saveUserSelection({
-          peopleCount: selection.peopleCount,
-          mealsPerWeek: selection.mealsPerWeek,
-          dietaryPreferences: selection.selectedPreferences,
-          allergens: selection.selectedAllergens,
-          selectedRecipeIds: selection.selectedRecipeIds,
+          peopleCount: savedSelection.peopleCount,
+          mealsPerWeek: savedSelection.mealsPerWeek,
+          dietaryPreferences: savedSelection.selectedPreferences,
+          allergens: savedSelection.selectedAllergens,
+          selectedRecipeIds: savedSelection.selectedRecipeIds,
         });
 
-        if (result.success) {
-          localStorage.removeItem('smakowalo_current_selection');
+        if (!result.success) {
+          console.warn('Could not persist selection after login', result.error)
         }
       } catch (err) {
         console.error('Failed to save pending selection after login', err);
@@ -152,7 +151,7 @@ export default function Logowanie() {
 
           <div className="text-center text-sm text-[#6b7280] mt-6">
             Nie masz konta?{' '}
-            <Link href="/rejestracja" className="text-[#15803d] font-medium hover:underline">
+            <Link href="/rejestracja?returnTo=/podsumowanie" className="text-[#15803d] font-medium hover:underline">
               Załóż konto
             </Link>
           </div>

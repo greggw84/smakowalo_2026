@@ -8,90 +8,60 @@ import { AlertTriangle, UserPlus, LogIn, ArrowRight } from 'lucide-react';
 import Logo from '@/components/Logo';
 import { createClient } from '@/lib/supabase/client';
 import { saveUserSelection } from '@/app/actions/save-selection';
-
-interface SavedSelection {
-  peopleCount: 2 | 4 | 6;
-  mealsPerWeek: 3 | 4 | 5;
-  selectedPreferences: DietaryPreference[];
-  selectedAllergens: Allergen[];
-  selectedRecipeIds: string[];
-  timestamp: number;
-}
+import { loadSelection, saveSelection, type SavedSelection } from '@/lib/selection-storage';
 
 export default function Podsumowanie() {
   const [selection, setSelection] = useState<SavedSelection | null>(null);
   const [selectedDishes, setSelectedDishes] = useState<Recipe[]>([]);
   const [user, setUser] = useState<any>(null);
   const [isSaving, setIsSaving] = useState(false);
-
-  const supabase = createClient();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const load = async () => {
-      const saved = localStorage.getItem('smakowalo_current_selection');
-      if (saved) {
-        const parsed: SavedSelection = JSON.parse(saved);
-        setSelection(parsed);
-
-        const dishes = sampleRecipes.filter(r => parsed.selectedRecipeIds.includes(r.id));
-        setSelectedDishes(dishes);
+      const parsed = loadSelection()
+      if (parsed) {
+        setSelection(parsed as SavedSelection)
+        setSelectedDishes(sampleRecipes.filter((r) => parsed.selectedRecipeIds.includes(r.id)))
+        saveSelection(parsed)
       }
 
-      // Check if already logged in (so we can skip the auth wall and go to payment)
-      const { data: { user } } = await supabase.auth.getUser();
-      setUser(user);
+      try {
+        const supabase = createClient()
+        const {
+          data: { user },
+        } = await supabase.auth.getUser()
+        setUser(user)
 
-      // If logged in and we have a pending selection in localStorage, auto-save it now
-      if (user && saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          await saveUserSelection({
+        if (user && parsed) {
+          const result = await saveUserSelection({
             peopleCount: parsed.peopleCount,
             mealsPerWeek: parsed.mealsPerWeek,
             dietaryPreferences: parsed.selectedPreferences,
             allergens: parsed.selectedAllergens,
             selectedRecipeIds: parsed.selectedRecipeIds,
-          });
-          localStorage.removeItem('smakowalo_current_selection');
-        } catch (e) {
-          console.error('Auto-save after login in podsumowanie failed', e);
-        }
-      }
-
-      // If we are logged in but have no selection in state (e.g. just returned from login page which cleared localStorage),
-      // recover the latest saved order from the database so we can show price and allow proceeding to payment.
-      if (user && !saved && !selection) {
-        try {
-          const { data: latestRows } = await supabase
-            .from('user_selections')
-            .select('*')
-            .eq('user_id', user.id)
-            .order('created_at', { ascending: false })
-            .limit(1);
-
-          if (latestRows && latestRows.length > 0) {
-            const latest = latestRows[0];
-            const recovered: SavedSelection = {
-              peopleCount: latest.people_count as 2 | 4 | 6,
-              mealsPerWeek: latest.meals_per_week as 3 | 4 | 5,
-              selectedPreferences: latest.dietary_preferences || [],
-              selectedAllergens: latest.allergens || [],
-              selectedRecipeIds: latest.selected_recipe_ids || [],
-              timestamp: Date.now(),
-            };
-            setSelection(recovered);
-
-            const recoveredDishes = sampleRecipes.filter(r => recovered.selectedRecipeIds.includes(r.id));
-            setSelectedDishes(recoveredDishes);
+          })
+          if (!result.success) {
+            console.warn('Auto-save selection skipped', result.error)
           }
-        } catch (e) {
-          console.error('Failed to recover latest selection in podsumowanie', e);
         }
+      } catch (e) {
+        console.error('Auth check in podsumowanie failed', e)
       }
-    };
 
-    load();
-  }, [supabase]);
+      setLoading(false)
+    }
+
+    load()
+  }, [])
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#f8f5f0]">
+        <p className="text-[#6b7280]">Ładowanie zamówienia...</p>
+      </div>
+    );
+  }
 
   if (!selection) {
     return (
@@ -129,11 +99,9 @@ export default function Podsumowanie() {
   const showPriceAndCta = !!user || !!selection;
 
   const handleProceedToPayment = () => {
-    // Selection should already be saved if we were logged in.
-    // Just clear any remaining localStorage and go to checkout.
-    localStorage.removeItem('smakowalo_current_selection');
-    window.location.href = '/platnosc';
-  };
+    if (selection) saveSelection(selection)
+    window.location.href = '/platnosc'
+  }
 
   return (
     <div className="min-h-screen bg-[#f8f5f0]">

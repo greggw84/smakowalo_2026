@@ -56,7 +56,12 @@ export async function proxy(request: NextRequest) {
     (request.nextUrl.pathname === '/logowanie' || request.nextUrl.pathname === '/rejestracja')
   ) {
     const url = request.nextUrl.clone()
-    url.pathname = '/panel'
+    const returnTo = request.nextUrl.searchParams.get('returnTo')
+    url.search = ''
+    url.pathname =
+      returnTo && returnTo.startsWith('/') && !returnTo.startsWith('//')
+        ? returnTo
+        : '/panel'
     return NextResponse.redirect(url)
   }
 
