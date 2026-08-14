@@ -182,9 +182,15 @@ export default function MenuTygodnia() {
                     </div>
                   )}
 
-                  <div className="mt-auto pt-3 border-t flex items-center justify-between text-xs text-[#6b7280]">
+                  <div className="mt-auto pt-3 border-t flex items-center justify-between gap-2 text-xs text-[#6b7280]">
                     <div className="flex items-center gap-1"><Users className="w-3.5 h-3.5" /> {recipe.servings} porcje</div>
-                    <div className="text-[#15803d] font-medium group-hover:underline">Zobacz przepis i kroki →</div>
+                    <Link
+                      href={`/wybierz-menu?add=${recipe.id}`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="text-[#15803d] font-medium hover:underline"
+                    >
+                      Dodaj do boxa →
+                    </Link>
                   </div>
                 </div>
               </div>
@@ -260,7 +266,7 @@ export default function MenuTygodnia() {
                 </div>
 
                 <div className="mt-6 flex gap-3">
-                  <Link href="/wybierz-menu" className="flex-1 text-center bg-[#15803d] text-white py-3 rounded-2xl font-medium">Dodaj to danie do boxa</Link>
+                  <Link href={`/wybierz-menu?add=${selectedRecipe.id}`} className="flex-1 text-center bg-[#15803d] text-white py-3 rounded-2xl font-medium">Dodaj to danie do boxa</Link>
                   <button onClick={() => setSelectedRecipe(null)} className="flex-1 border border-[#e8dcc8] py-3 rounded-2xl">Zamknij</button>
                 </div>
               </div>

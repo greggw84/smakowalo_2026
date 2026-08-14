@@ -1,17 +1,18 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { dietaryOptions, allAllergens, sampleRecipes } from '@/lib/data/recipes';
 import { DietaryPreference, Allergen, Recipe } from '@/lib/types';
 import { AlertTriangle, Plus, Minus, Check } from 'lucide-react';
 import Logo from '@/components/Logo';
-import { saveSelection } from '@/lib/selection-storage';
+import { loadSelection, saveSelection } from '@/lib/selection-storage';
 
 export default function Kreator() {
   // === PLAN ===
   const [peopleCount, setPeopleCount] = useState<2 | 4 | 6>(2);
   const [mealsPerWeek, setMealsPerWeek] = useState<3 | 4 | 5>(3);
+  const [hydrated, setHydrated] = useState(false);
 
   const totalPortions = peopleCount * mealsPerWeek;
 
@@ -45,6 +46,52 @@ export default function Kreator() {
 
   // === WYBÓR DAŃ (core kreatora) ===
   const [selectedRecipeIds, setSelectedRecipeIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    const saved = loadSelection()
+    const addId = new URLSearchParams(window.location.search).get('add')
+    const known = new Set(sampleRecipes.map((r) => r.id))
+
+    let nextPeople = saved?.peopleCount ?? 2
+    let nextMeals = saved?.mealsPerWeek ?? 3
+    let nextPrefs = (saved?.selectedPreferences?.length ? saved.selectedPreferences : ['none']) as DietaryPreference[]
+    let nextAllergens = (saved?.selectedAllergens || []) as Allergen[]
+    let nextIds = (saved?.selectedRecipeIds || []).filter((id) => known.has(id))
+
+    if (addId && known.has(addId) && !nextIds.includes(addId)) {
+      if (nextIds.length >= 5) {
+        nextMeals = 5
+      } else {
+        nextIds = [...nextIds, addId]
+        if (nextIds.length > nextMeals) {
+          nextMeals = (nextIds.length <= 4 ? 4 : 5) as 3 | 4 | 5
+        }
+      }
+    }
+
+    setPeopleCount(nextPeople)
+    setMealsPerWeek(nextMeals)
+    setSelectedPreferences(nextPrefs)
+    setSelectedAllergens(nextAllergens)
+    setSelectedRecipeIds(nextIds)
+    setHydrated(true)
+
+    if (addId) {
+      window.history.replaceState({}, '', '/wybierz-menu')
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!hydrated) return
+    saveSelection({
+      peopleCount,
+      mealsPerWeek,
+      selectedPreferences,
+      selectedAllergens,
+      selectedRecipeIds,
+      timestamp: Date.now(),
+    })
+  }, [hydrated, peopleCount, mealsPerWeek, selectedPreferences, selectedAllergens, selectedRecipeIds])
 
   const addDish = (id: string) => {
     if (selectedRecipeIds.length >= mealsPerWeek) return;
