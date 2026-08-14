@@ -283,12 +283,12 @@ export async function loadAccountHistory(
       .select('*')
       .in('order_id', orderIds)
     if (!itemErr && items) {
-      itemsByOrder = (items as Record<string, any>[]).reduce((map, item) => {
-        const list = map.get(item.order_id) || []
+      itemsByOrder = new Map<number, Record<string, any>[]>()
+      for (const item of items as Record<string, any>[]) {
+        const list = itemsByOrder.get(item.order_id) || []
         list.push(item)
-        map.set(item.order_id, list)
-        return map
-      }, new Map<number, Record<string, any>[]>())
+        itemsByOrder.set(item.order_id, list)
+      }
     }
   }
 
