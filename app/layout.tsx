@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { buildMetadata, ROUTE_SEO } from "@/lib/seo";
 import { Geist, Geist_Mono, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "sonner";
@@ -22,8 +23,7 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "Smakowało | Zdrowe zestawy posiłków z dostawą | Poznań i okolice",
-  description: "Świeże składniki + dokładne przepisy. Wybieraj spośród 2, 4 lub 6 osób. Dostawa we wtorki i czwartki w Poznaniu i do 30 km. Zdrowe jedzenie bez marnowania czasu i żywności.",
+  ...buildMetadata(ROUTE_SEO.home),
   icons: {
     icon: "/icon-smakowalo.jpg",
     apple: "/icon-smakowalo.jpg",

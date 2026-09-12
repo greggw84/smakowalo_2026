@@ -6,6 +6,7 @@ import { sampleRecipes } from '@/lib/data/recipes';
 import { Recipe, DietaryPreference, Allergen } from '@/lib/types';
 import { AlertTriangle, UserPlus, LogIn, ArrowRight } from 'lucide-react';
 import Logo from '@/components/Logo';
+import { formatDishCount } from '@/lib/polish';
 import { createClient } from '@/lib/supabase/client';
 import { saveUserSelection } from '@/app/actions/save-selection';
 import { loadSelection, saveSelection, type SavedSelection } from '@/lib/selection-storage';
@@ -109,7 +110,7 @@ export default function Podsumowanie() {
       <div className="bg-white border-b">
         <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/"><Logo width={156} height={40} /></Link>
-          <div className="text-sm text-[#6b7280]">Podsumowanie zamówienia • Krok 3 z 4</div>
+          <div className="text-sm text-[#6b7280]">Podsumowanie zamówienia • Krok 2 z 3</div>
         </div>
       </div>
 
@@ -126,7 +127,7 @@ export default function Podsumowanie() {
           <div className="bg-white rounded-3xl p-6 border border-[#e8dcc8]">
             <div className="text-sm text-[#6b7280]">Twój plan</div>
             <div className="text-2xl font-semibold text-[#14532d] mt-1">
-              {selection.peopleCount} osoby • {selection.mealsPerWeek} dań
+              {selection.peopleCount} osoby • {formatDishCount(selection.mealsPerWeek)}
             </div>
             <div className="text-[#15803d] font-medium mt-1">
               Razem {totalPortions} porcji tygodniowo
@@ -157,7 +158,7 @@ export default function Podsumowanie() {
             {dishesWithWarnings.length > 0 && (
               <div className="text-sm text-red-600 font-medium flex items-center gap-1">
                 <AlertTriangle className="w-4 h-4" />
-                {dishesWithWarnings.length} dań z Twoimi alergenami
+                {formatDishCount(dishesWithWarnings.length)} z Twoimi alergenami
               </div>
             )}
           </div>

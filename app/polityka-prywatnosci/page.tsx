@@ -10,10 +10,10 @@ export default function PolitykaPrywatnosci() {
         <Link href="/"><Logo width={168} height={42} /></Link>
       </div>
       <div className="max-w-3xl mx-auto bg-white rounded-3xl p-8 border border-[#e8dcc8]">
-        <h1 className="text-3xl font-semibold text-[#14532d] mb-6">Polityka Prywatności</h1>
+        <h1 className="text-3xl font-semibold text-[#14532d] mb-6">Polityka prywatności</h1>
         
         <div className="prose text-[#4b5563] space-y-6">
-          <p><strong>SMAKOWAŁO sp. z o.o.</strong> z siedzibą w Poznaniu przy ul. Połączyńska 11A, 60-438 Poznań, NIP: 7812067133, KRS: 0001093816 (dalej „Administrator”).</p>
+          <p><strong>SMAKOWAŁO sp. z o.o.</strong> z siedzibą w Poznaniu przy ul. Połczyńska 11A, 60-438 Poznań, NIP: 7812067133, KRS: 0001093816 (dalej „Administrator”).</p>
 
           <h2 className="text-xl font-semibold text-[#14532d] mt-8">1. Zakres i cel przetwarzania danych</h2>
           <p>Przetwarzamy dane osobowe w celu świadczenia usług (zamówienia, dostawa, personalizacja menu na podstawie preferencji i alergii), marketingu (z zgodą), obsługi klienta i spełnienia obowiązków prawnych (np. podatkowych).</p>

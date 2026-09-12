@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { sampleRecipes } from '@/lib/data/recipes';
 import Logo from '@/components/Logo';
+import { formatDishCount } from '@/lib/polish';
 import { CheckCircle, ArrowRight } from 'lucide-react';
 import { loadSelection, saveSelection, clearSelection, type SavedSelection } from '@/lib/selection-storage';
 import { persistAccount } from '@/lib/account';
@@ -152,7 +153,7 @@ export default function Platnosc() {
       <div className="bg-white border-b">
         <div className="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between">
           <Link href="/"><Logo width={156} height={40} /></Link>
-          <div className="text-sm text-[#6b7280]">Płatność • Krok 4 z 4</div>
+          <div className="text-sm text-[#6b7280]">Płatność • Krok 3 z 3</div>
         </div>
       </div>
 
@@ -166,7 +167,7 @@ export default function Platnosc() {
             <div className="mb-5">
               <div className="text-sm text-[#6b7280]">Twój plan</div>
               <div className="text-2xl font-semibold text-[#14532d]">
-                {selection.peopleCount} osoby • {selection.mealsPerWeek} dań
+                {selection.peopleCount} osoby • {formatDishCount(selection.mealsPerWeek)}
               </div>
             </div>
 

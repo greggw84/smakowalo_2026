@@ -13,7 +13,7 @@ export default function Regulamin() {
         <h1 className="text-3xl font-semibold text-[#14532d] mb-6">Regulamin świadczenia usług</h1>
         
         <div className="prose text-[#4b5563] space-y-6">
-          <p><strong>SMAKOWAŁO sp. z o.o.</strong> z siedzibą w Poznaniu przy ul. Połączyńska 11A, 60-438 Poznań, NIP: 7812067133, KRS: 0001093816 (dalej „Usługodawca”).</p>
+          <p><strong>SMAKOWAŁO sp. z o.o.</strong> z siedzibą w Poznaniu przy ul. Połczyńska 11A, 60-438 Poznań, NIP: 7812067133, KRS: 0001093816 (dalej „Usługodawca”).</p>
 
           <h2 className="text-xl font-semibold text-[#14532d] mt-8">§1 Definicje</h2>
           <ul className="list-disc pl-5">
@@ -52,9 +52,9 @@ export default function Regulamin() {
           <h2 className="text-xl font-semibold text-[#14532d] mt-8">§8 Postanowienia końcowe</h2>
           <p>Regulamin obowiązuje od dnia publikacji. Usługodawca może go zmieniać z 14-dniowym wyprzedzeniem.</p>
           <p>Spory rozstrzygane są przez sąd właściwy dla Usługodawcy lub polubownie.</p>
-          <p>Kontakt: kontakt@smakowalo.pl , tel. [wstaw numer]</p>
+          <p>Kontakt: kontakt@smakowalo.pl</p>
 
-          <p className="text-sm mt-8">SMAKOWAŁO sp. z o.o., ul. Połączyńska 11A, 60-438 Poznań, NIP 7812067133, KRS 0001093816</p>
+          <p className="text-sm mt-8">SMAKOWAŁO sp. z o.o., ul. Połczyńska 11A, 60-438 Poznań, NIP 7812067133, KRS 0001093816</p>
         </div>
 
         <div className="mt-8 text-center">

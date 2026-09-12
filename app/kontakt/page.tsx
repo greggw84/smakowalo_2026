@@ -33,7 +33,7 @@ export default function Kontakt() {
 
         <div className="text-[#4b5563] space-y-2 text-sm mb-8">
           <p className="font-semibold text-[#14532d]">SMAKOWAŁO sp. z o.o.</p>
-          <p>ul. Połączyńska 11A, 60-438 Poznań</p>
+          <p>ul. Połczyńska 11A, 60-438 Poznań</p>
           <p>NIP 7812067133 • KRS 0001093816</p>
         </div>
 
