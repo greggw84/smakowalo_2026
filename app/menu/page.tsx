@@ -6,6 +6,7 @@ import { sampleRecipes, allAllergens, dietaryOptions } from '@/lib/data/recipes'
 import { Recipe } from '@/lib/types';
 import { Clock, Users, AlertTriangle, Search, X } from 'lucide-react';
 import Logo from '@/components/Logo';
+import { dietTagLabel, formatDishCount } from '@/lib/polish';
 
 export default function MenuTygodnia() {
   const [search, setSearch] = useState('');
@@ -63,9 +64,9 @@ export default function MenuTygodnia() {
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-8">
           <div>
-            <div className="text-[#15803d] text-sm font-semibold tracking-[2px] mb-2">TYDZIEŃ 23 • 2–8 CZERWCA 2025</div>
+            <div className="text-[#15803d] text-sm font-semibold tracking-[2px] mb-2">TYDZIEŃ 37 • 7–13 WRZEŚNIA 2026</div>
             <h1 className="text-5xl font-semibold tracking-tighter text-[#14532d]">Menu tego tygodnia</h1>
-            <p className="text-[#4b5563] mt-2">12 dań • pełne informacje • kliknij po szczegóły</p>
+            <p className="text-[#4b5563] mt-2">15 dań • pełne informacje • kliknij po szczegóły</p>
           </div>
           <p className="text-[#4b5563] max-w-md mt-4 md:mt-0 text-sm">
             Pełne menu z przepisami krok po kroku, wartościami odżywczymi, witaminami i wskazówkami. Wybierz, co Ci smakuje.
@@ -140,7 +141,7 @@ export default function MenuTygodnia() {
               <button onClick={() => { setSearch(''); setSelectedDiets([]); setMaxTime(60); setMaxKcal(700); setExcludeAllergens([]); setSort('time'); }} className="text-xs px-3 py-2 border border-[#e8dcc8] rounded-2xl hover:bg-[#f8f5f0]">Reset</button>
             </div>
           </div>
-          <div className="text-xs text-[#6b7280] mt-3">Znaleziono {filteredRecipes.length} dań • Kliknij kartę, żeby zobaczyć pełny przepis krok po kroku, wartości odżywcze i wskazówki.</div>
+          <div className="text-xs text-[#6b7280] mt-3">Znaleziono {formatDishCount(filteredRecipes.length)} • Kliknij kartę, żeby zobaczyć pełny przepis krok po kroku, wartości odżywcze i wskazówki.</div>
         </div>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
